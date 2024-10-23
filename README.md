@@ -39,5 +39,5 @@ I use the 1password `op run` via a service user to populate the env.
 Then you can run the script once you know the playlist and device id:
 
 ```sh
-$ python respot.py playlist_id device_id
+$ python respot.py --last-fm-username your_username --playlist playlist_id --device device_id
 ```
