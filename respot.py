@@ -104,6 +104,10 @@ def process_args():
         help="The device ID of the place to play the playlist",
     )
     parser.add_argument(
+        "--last-fm-username",
+        help="The username for the last.fm account",
+    )
+    parser.add_argument(
         "--days",
         help="Number of days back to sync. Default: 1",
         type=int,
@@ -127,7 +131,7 @@ def main():
     spotify = spotify_client()
     lastfm = last_fm_client()
     clear_spotify_playlist(spotify, args.playlist)
-    tracks = last_fm_tracks(lastfm, 'claytron', args.days, args.days_end)
+    tracks = last_fm_tracks(lastfm, args.last_fm_username, args.days, args.days_end)
 
     if not len(tracks):
         exit
