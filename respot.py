@@ -45,8 +45,8 @@ def clear_spotify_playlist(spotify, playlist):
         # Clear out the playlist first
         spotify.playlist_remove_all_occurrences_of_items(playlist, to_remove)
 
-def last_fm_tracks(lastfm, username, days):
-    now = datetime.utcnow()
+def last_fm_tracks(lastfm, username, days, days_end):
+    now = datetime.utcnow() - timedelta(days=days_end)
     yesterday = now - timedelta(days=days)
     return lastfm.get_user(username).get_recent_tracks(
         limit=None,
@@ -110,6 +110,12 @@ def process_args():
         default=1,
     )
     parser.add_argument(
+        "--days-end",
+        help="Number of days back to start sync. Default: 0",
+        type=int,
+        default=0,
+    )
+    parser.add_argument(
         "--disable-playback",
         help="Do no play the playlist",
         action="store_true",
@@ -121,7 +127,7 @@ def main():
     spotify = spotify_client()
     lastfm = last_fm_client()
     clear_spotify_playlist(spotify, args.playlist)
-    tracks = last_fm_tracks(lastfm, 'claytron', args.days)
+    tracks = last_fm_tracks(lastfm, 'claytron', args.days, args.days_end)
 
     if not len(tracks):
         exit
