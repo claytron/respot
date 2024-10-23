@@ -96,11 +96,11 @@ def start_spotify_playback(spotify, device, playlist):
 def process_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "playlist",
+        "--playlist",
         help="The Spotify ID of the playlist to populate and play",
     )
     parser.add_argument(
-        "device",
+        "--device",
         help="The device ID of the place to play the playlist",
     )
     parser.add_argument(
