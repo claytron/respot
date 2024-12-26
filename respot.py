@@ -48,11 +48,14 @@ def clear_spotify_playlist(spotify, playlist):
 def last_fm_tracks(lastfm, username, days, days_end):
     now = datetime.utcnow() - timedelta(days=days_end)
     yesterday = now - timedelta(days=days)
-    return lastfm.get_user(username).get_recent_tracks(
+    tracks = lastfm.get_user(username).get_recent_tracks(
         limit=None,
         time_from=yesterday.strftime('%s'),
         time_to=now.strftime('%s'),
     )
+    # Make sure it is chronological
+    tracks.reverse()
+    return tracks
 
 def populate_spotify_playlist(spotify, last_fm_tracks, playlist):
     sp_ids = []
