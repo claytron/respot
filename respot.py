@@ -2,6 +2,7 @@
 import argparse
 import re
 import os
+import datetime as d
 from datetime import datetime, timedelta
 from itertools import islice
 import pylast
@@ -45,13 +46,20 @@ def clear_spotify_playlist(spotify, playlist):
         # Clear out the playlist first
         spotify.playlist_remove_all_occurrences_of_items(playlist, to_remove)
 
-def last_fm_tracks(lastfm, username, days, days_end):
-    now = datetime.utcnow() - timedelta(days=days_end)
-    yesterday = now - timedelta(days=days)
+def timeframe(days=None, days_end=0, all_day=True):
+    end = datetime.now(d.UTC) - timedelta(days=days_end)
+    start = end - timedelta(days=days)
+    if all_day:
+        midnight = datetime.min.time()
+        end = datetime.combine(end, midnight)
+        start = datetime.combine(start, midnight)
+    return [start.strftime('%s'), end.strftime('%s')]
+
+def last_fm_tracks(lastfm, username, start, end):
     tracks = lastfm.get_user(username).get_recent_tracks(
         limit=None,
-        time_from=yesterday.strftime('%s'),
-        time_to=now.strftime('%s'),
+        time_from=start,
+        time_to=end,
     )
     # Make sure it is chronological
     tracks.reverse()
@@ -134,7 +142,8 @@ def main():
     spotify = spotify_client()
     lastfm = last_fm_client()
     clear_spotify_playlist(spotify, args.playlist)
-    tracks = last_fm_tracks(lastfm, args.last_fm_username, args.days, args.days_end)
+    times = timeframe(args.days, args.days_end)
+    tracks = last_fm_tracks(lastfm, args.last_fm_username, times[0], times[1])
 
     if not len(tracks):
         exit
