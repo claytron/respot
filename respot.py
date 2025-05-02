@@ -8,7 +8,6 @@ from itertools import islice
 import pylast
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from urllib.parse import quote
 
 def spotify_client():
     scope = [
@@ -74,7 +73,7 @@ def populate_spotify_playlist(spotify, last_fm_tracks, playlist):
 
         # Cleanup featuring info in artist name
         if re.search(r'(ft|feat)\.', artist, re.I):
-            artist = re.sub(r'(ft|feat)\..*', '', artist, re.I).strip()
+            artist = re.sub(r'(ft|feat)\..*', '', artist, flags=re.I).strip()
 
         # TODO: removing just a single quote below, but seems like this
         # should be handled by the spotipy lib instead. Other chars
