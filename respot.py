@@ -2,6 +2,7 @@
 import argparse
 import re
 import os
+import time
 import datetime as d
 from datetime import datetime, timedelta
 from itertools import islice
@@ -60,8 +61,8 @@ def clear_spotify_playlist(spotify, playlist):
 def clear_tidal_playlist(tidal, playlist_id):
     playlist = tidal.playlist(playlist_id)
     items = list(playlist.items())
-    for _ in items:
-        playlist.remove_by_index(0)
+    if items:
+        playlist.remove_by_indices(list(range(len(items))))
 
 def timeframe(days=None, days_end=0, all_day=True):
     end = datetime.now(d.UTC) - timedelta(days=days_end)
@@ -127,7 +128,15 @@ def populate_tidal_playlist(tidal, last_fm_tracks, playlist_id):
             artist = re.sub(r'(ft|feat)\..*', '', artist, flags=re.I).strip()
 
         query = '{} {}'.format(track_name, artist)
-        results = tidal.search(query, models=[tidalapi.Track], limit=1)
+        delay = 1
+        while True:
+            try:
+                results = tidal.search(query, models=[tidalapi.Track], limit=1)
+                break
+            except tidalapi.exceptions.TooManyRequests:
+                print("Rate limited, waiting {}s...".format(delay))
+                time.sleep(delay)
+                delay = min(delay * 2, 60)
         items = results.get('tracks') or []
         if items:
             track_ids.append(str(items[0].id))
